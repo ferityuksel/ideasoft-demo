@@ -1,7 +1,12 @@
 IDEASOFT DEMO APP
+
 Azure DevOps CI/CD Pipeline
+
 Detayları repo'da bulunan demo-idesoft.pdf üzerinden erişebilirsiniz.
+
+
 Azure DevOps platformu üzerinden CI/CD süreçleri aşağıdaki adımları izler:
+
 
 1.	Install Dependencies: Symfony bağımlılıkları yüklenir.
 
