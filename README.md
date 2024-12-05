@@ -19,4 +19,6 @@ Azure DevOps platformu üzerinden CI/CD süreçleri aşağıdaki adımları izle
 5.	Deploy to Kubernetes: Helm kullanılarak Kubernetes'e dağıtım yapılır.
 
 Demo uygulamasının imajına aşağıdaki komut ile ulaşabilirsiniz.
+
+
 docker pull ferityuksel/demoideasoft:52
