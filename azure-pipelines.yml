@@ -1,0 +1,87 @@
+trigger:
+  - master
+
+pool:
+  name: 'ubuntu-test'
+
+stages:
+  - stage: Install
+    displayName: Install Dependencies
+    jobs:
+      - job: Install
+        displayName: Install PHP Dependencies
+        steps:
+          - script: |
+              php -v
+              composer update
+              composer install
+            displayName: Install dependencies
+
+  - stage: Test
+    displayName: Run Unit Tests
+    dependsOn: Install
+    jobs:
+      - job: UnitTests
+        displayName: Run PHPUnit Tests
+        steps:
+          - script: |
+              composer update
+              composer require --dev symfony/phpunit-bridge 
+              ./bin/phpunit
+            displayName: Run PHPUnit
+            continueOnError: true
+
+  - stage: SonarQubeAnalysis
+    displayName: SonarQube Analysis
+    jobs:
+      - job: AnalyzeCode
+        displayName: Run SonarQube Analysis
+        steps:
+          - task: SonarQubePrepare@5
+            inputs:
+              SonarQube: 'SonarQube' 
+              scannerMode: 'CLI'
+              configMode: 'manual'
+              cliProjectKey: 'Ideasoft-app'
+              cliProjectName: 'Ideasoft-app'
+              cliProjectVersion: '1.0'
+              cliSources: './src'
+
+          - script: |
+              sonar-scanner -X
+            displayName: Run SonarQube Scanner (Debug Mode)
+
+          - task: SonarQubePublish@5
+            inputs:
+              pollingTimeoutSec: '300'
+
+  - stage: DockerBuildAndPush
+    displayName: Build and Push Docker Image
+    jobs:
+      - job: DockerBuild
+        displayName: Docker Build and Push
+        steps:
+          - task: Docker@2
+            inputs:
+              containerRegistry: 'Dockerhub'
+              repository: 'ferityuksel/demoideasoft'
+              command: 'buildAndPush'
+              Dockerfile: '**/Dockerfile' # Adjust path to Dockerfile if necessary
+              tags: |
+                $(Build.BuildId)
+          - script: |
+              echo "Docker image build and push completed."
+            displayName: Docker Build and Push Confirmation
+
+  - stage: HelmDeploy
+    displayName: HelmDeploy
+    jobs:
+      - job: Deploy
+        displayName: Deploy to K8s
+        steps:
+          - script: |
+              helm upgrade --install demo-ideasoft ./demo-ideasoft \
+                --namespace ideasoft \
+                --set image.repository=ferityuksel/demoideasoft \
+                --set image.tag=$(Build.BuildId)
+            displayName: Deploy with Helm
