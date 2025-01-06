@@ -22,3 +22,6 @@ Demo uygulamasının imajına aşağıdaki komut ile ulaşabilirsiniz.
 
 
 docker pull ferityuksel/demoideasoft:52
+
+![image](https://github.com/user-attachments/assets/ca2eba68-19f8-4699-ad6b-2b885708bc1e)
+
